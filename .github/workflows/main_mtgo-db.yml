@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'mtgo-db'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D42B401DA72944449BF7C99DE1C4D3AA }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_44EA1F4DE4094F93BAD304ED9B7766BF }}
