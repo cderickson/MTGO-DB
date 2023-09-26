@@ -1,0 +1,14 @@
+__pycache__/
+website/__pycache__/
+
+# UTILITY FILES
+instance/
+instance/database.db
+# AUXILIARY FILES
+website/export/*.zip
+gamelogs/*
+draftlogs/*
+upload/*
+export/*
+query_script.py
+# website/config.cfg
