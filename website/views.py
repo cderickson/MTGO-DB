@@ -1184,7 +1184,7 @@ def reprocess_logs(self, data):
 @views.route('/test', methods=['GET'])
 def test():
 	#return json.dumps(multifaced)
-	new_dict = {'1':'db.session'}
+	new_dict = {'1':db.session}
 	return json.dumps(new_dict)
 
 @views.route('/update_vars', methods=['GET'])
