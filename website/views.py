@@ -115,7 +115,10 @@ def build_cards_played_db(uid):
 									lands1=sorted(list(lands1),reverse=False),
 									lands2=sorted(list(lands2),reverse=False))
 		db.session.add(cards_played)
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 def update_draft_win_loss(uid, username, draft_id):
 	if draft_id != 'NA':
 		draft_record = Draft.query.filter_by(uid=uid, draft_id=draft_id, hero=username).first()
@@ -123,7 +126,10 @@ def update_draft_win_loss(uid, username, draft_id):
 		losses = Match.query.filter_by(uid=uid, draft_id=draft_id, p1=username, match_winner='P2').count()
 		draft_record.match_wins = wins
 		draft_record.match_losses = losses
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 def get_logtype_from_filename(filename):
 	if ('Match_GameLog_' in filename) and (len(filename) >= 30) and ('.dat' in filename):
 		return 'GameLog'
@@ -255,7 +261,10 @@ def process_logs(self, data):
 						existing.roll_winner = match[10]
 						existing.date = match[17]
 						Play.query.filter_by(uid=uid, match_id=match[0]).delete()
-						db.session.commit()
+						try:
+							db.session.commit()
+						except:
+							db.session.rollback()
 						counts['matches_replaced'] += 1
 					else:
 						new_match = Match(uid=uid,
@@ -290,7 +299,10 @@ def process_logs(self, data):
 						existing.p1_mulls=game[8]
 						existing.p2_mulls=game[9]
 						existing.turns=game[10]
-						db.session.commit()
+						try:
+							db.session.commit()
+						except:
+							db.session.rollback()
 						counts['games_replaced'] += 1
 						# continue
 					else:
@@ -339,7 +351,10 @@ def process_logs(self, data):
 										game_num=game[-1],
 										game_actions='\n'.join(parsed_data_inverted[3][game][-15:]))
 					db.session.add(new_ga15)
-				db.session.commit()
+				try:
+					db.session.commit()
+				except:
+					db.session.rollback()
 			
 			if (get_logtype_from_filename(filename) == 'DraftLog') and (str(uid) == blob_uid):
 				blob_client = blob_service_client.get_blob_client(container=os.environ.get('LOG_CONTAINER_NAME'), blob=blob.name)
@@ -370,7 +385,10 @@ def process_logs(self, data):
 						existing.date = draft[12]
 						Pick.query.filter_by(uid=uid, draft_id=draft[0]).delete()
 						counts['drafts_replaced'] += 1
-						db.session.commit()
+						try:
+							db.session.commit()
+						except:
+							db.session.rollback()
 					else:
 						new_draft = Draft(uid=uid,
 										draft_id=draft[0],
@@ -417,7 +435,10 @@ def process_logs(self, data):
 									avail14=p[18])
 					db.session.add(new_pick)
 					counts['new_picks'] += 1
-				db.session.commit()
+				try:
+					db.session.commit()
+				except:
+					db.session.rollback()
 			if self.is_aborted():
 				return 'TASK STOPPED'
 		build_cards_played_db(uid)
@@ -437,7 +458,10 @@ def process_logs(self, data):
 		error_code=error_code
 	)
 	db.session.add(new_task_history)
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 
 	mail = current_app.extensions['mail']
 	with current_app.app_context():
@@ -711,7 +735,10 @@ def process_from_app(self, data):
 									avail14=p[18])
 					db.session.add(new_pick)
 					counts['new_picks'] += 1
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 		build_cards_played_db(uid)
 	except Exception as e:
 		error_code = e
@@ -729,7 +756,10 @@ def process_from_app(self, data):
 		error_code=error_code
 	)
 	db.session.add(new_task_history)
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 
 	mail = current_app.extensions['mail'] 
 	with current_app.app_context():
@@ -872,7 +902,10 @@ def reprocess_logs(self, data):
 						existing.date = match[17]
 						counts['matches_skipped_dupe'] += 1
 						Play.query.filter_by(uid=uid, match_id=fname).delete()
-						db.session.commit()
+						try:
+							db.session.commit()
+						except:
+							db.session.rollback()
 					else:
 						new_match = Match(uid=uid,
 										match_id=match[0],
@@ -907,7 +940,10 @@ def reprocess_logs(self, data):
 						existing.p2_mulls=game[9]
 						existing.turns=game[10]
 						counts['games_skipped_dupe'] += 1
-						db.session.commit()
+						try:
+							db.session.commit()
+						except:
+							db.session.rollback()
 					else:
 						new_game = Game(uid=uid,
 										match_id=game[0],
@@ -959,7 +995,10 @@ def reprocess_logs(self, data):
 											game_num=game[-1],
 											game_actions='\n'.join(parsed_data_inverted[3][game][-15:]))
 						db.session.add(new_ga15)
-				db.session.commit()
+				try:
+					db.session.commit()
+				except:
+					db.session.rollback()
 			
 			if (get_logtype_from_filename(filename) == 'DraftLog') and (str(uid) == blob_uid):
 				blob_client = blob_service_client.get_blob_client(container=os.environ.get('LOG_CONTAINER_NAME'), blob=blob.name)
@@ -990,7 +1029,10 @@ def reprocess_logs(self, data):
 						existing.format = draft[11]
 						existing.date = draft[12]
 						Pick.query.filter_by(uid=uid, draft_id=draft[0]).delete()
-						db.session.commit()
+						try:
+							db.session.commit()
+						except:
+							db.session.rollback()
 					else:
 						new_draft = Draft(uid=uid,
 										draft_id=draft[0],
@@ -1040,7 +1082,10 @@ def reprocess_logs(self, data):
 										avail14=p[18])
 						db.session.add(new_pick)
 						counts['new_picks'] += 1
-				db.session.commit()
+				try:
+					db.session.commit()
+				except:
+					db.session.rollback()
 			if self.is_aborted():
 				return 'TASK STOPPED'
 		build_cards_played_db(uid)
@@ -1060,7 +1105,10 @@ def reprocess_logs(self, data):
 		error_code=error_code
 	)
 	db.session.add(new_task_history)
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 
 	mail = current_app.extensions['mail'] 
 	with current_app.app_context():
@@ -1135,7 +1183,9 @@ def reprocess_logs(self, data):
 
 @views.route('/test', methods=['GET'])
 def test():
-	return json.dumps(multifaced)
+	#return json.dumps(multifaced)
+	new_dict = {'1':'db.session'}
+	return json.dumps(new_dict)
 
 @views.route('/update_vars', methods=['GET'])
 @login_required
@@ -1206,7 +1256,10 @@ def email():
 						  is_confirmed=False,
 						  confirmed_on=None)
 		db.session.add(new_user)
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 
 		email = request.form['email']
 		token = s.dumps(email, salt=os.environ.get("EMAIL_CONFIRMATION_SALT"))
@@ -1255,7 +1308,10 @@ def confirm_email(token):
 			return "User not found"
 		user.is_confirmed = True
 		user.confirmed_on = datetime.datetime.now()
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 		login_user(user, remember=True)
 		flash('Thank you for confirming your email. Welcome to your MTGO-Tracker profile page.', category="success")
 		return redirect(url_for('views.profile'))
@@ -1298,7 +1354,10 @@ def change_pwd():
 		return render_template('reset_pwd.html', user=current_user, inputs=[inputs[1]])
 	else:
 		user.pwd = generate_password_hash(inputs[1], method='sha256')
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 		login_user(user, remember=True)
 		flash(f'Password updated successfully.', category='success')
 		return redirect(url_for('views.profile'))
@@ -1549,7 +1608,10 @@ def revise():
 		match.format = fmt 
 		match.limited_format = limited_format
 		match.match_type = match_type
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 	return redirect(url_for('views.table', table_name='matches', page_num=page_num))
 
 @views.route('/revise_multi', methods=['POST'])
@@ -1601,7 +1663,10 @@ def revise_multi():
 					match.p2_arch = 'NA'
 		elif field_to_change == 'Match Type':
 			match.match_type = match_type
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 	return redirect(url_for('views.table', table_name='matches', page_num=page_num))
 
 @views.route('/revise_ignored', methods=['POST'])
@@ -1611,7 +1676,10 @@ def revise_ignored():
 	match_ids = match_id_str.split(',')
 	for i in match_ids:
 		Removed.query.filter_by(uid=current_user.uid, match_id=i).delete()
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 	table = Removed.query.filter_by(uid=current_user.uid, reason='Ignored').order_by(Removed.match_id).all()
 	if len(table) == 0:
 		flash(f'No ignored matches to display.', category='error')
@@ -1671,7 +1739,10 @@ def game_winner(match_id, game_num, game_winner):
 			else:
 				pass
 		update_draft_win_loss(uid=current_user.uid, username=current_user.username, draft_id=draft_id)
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 
 	date = Match.query.filter_by(match_id=match_id, uid=current_user.uid).first().date
 	rem_games = Game.query.filter_by(uid=current_user.uid, game_winner='NA', p1=current_user.username).join(Match, (Game.uid == Match.uid) & (Game.match_id == Match.match_id) & (Game.p1 == Match.p1)).add_entity(Match)
@@ -1825,7 +1896,10 @@ def apply_draft_id(match_id, draft_id):
 		matches = Match.query.filter_by(uid=current_user.uid, match_id=match_id).all()
 		for match in matches:
 			match.draft_id = draft_id
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 
 		match_wins = 0
 		match_losses = 0
@@ -1838,7 +1912,10 @@ def apply_draft_id(match_id, draft_id):
 		draft = Draft.query.filter_by(uid=current_user.uid, draft_id=draft_id).first()
 		draft.match_wins = match_wins
 		draft.match_losses = match_losses
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 
 	while True:
 		if next_match is None:
@@ -2028,7 +2105,10 @@ def best_guess():
 					p2_data = modo.closest_list(set(cards2),all_decks,yyyy_mm)
 					match.p2_subarch = p2_data[0]
 					con_count += 1
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 	return_str = 'Revised deck names for ' + str(con_count) + ' Constructed  Match'
 	if con_count != 1:
 		return_str += 'es'
@@ -2061,7 +2141,10 @@ def remove():
 		if removeType == 'Ignore':
 			newIgnore = Removed(uid=current_user.uid, match_id=match_id, reason='Ignored')
 			db.session.add(newIgnore)
-		db.session.commit()
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
 
 	flash(f'{match_size} Matches removed, {game_size} Games removed, {play_size} Plays removed.', category='success')
 	return redirect('/table/matches/1')
@@ -2162,7 +2245,10 @@ def edit_profile():
 	user = Player.query.filter_by(uid=current_user.uid).first()
 	#user.email = new_email
 	user.username = new_username
-	db.session.commit()
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
 	
 	return redirect(url_for('views.profile'))
 
